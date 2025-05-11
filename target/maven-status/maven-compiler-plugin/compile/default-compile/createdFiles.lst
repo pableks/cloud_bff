@@ -1,0 +1,10 @@
+com\cloud\bff\models\UserModel.class
+com\cloud\bff\controllers\UserController.class
+com\cloud\bff\controllers\RoleController.class
+com\cloud\bff\services\RoleService.class
+com\cloud\bff\services\serviceImpl\UserServiceImpl.class
+com\cloud\bff\BffCloudApplication.class
+com\cloud\bff\models\ResponseModel.class
+com\cloud\bff\services\serviceImpl\RoleServiceImpl.class
+com\cloud\bff\services\UserService.class
+com\cloud\bff\models\RoleModel.class
