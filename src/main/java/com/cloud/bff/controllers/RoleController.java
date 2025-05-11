@@ -34,8 +34,21 @@ public class RoleController {
             try {
                 JsonNode rootNode = objectMapper.readTree(requestBody);
                 if (rootNode.has("query")) {
-                    // Standard GraphQL JSON format with "query" field
-                    graphqlQuery = rootNode.get("query").asText();
+                    String queryValue = rootNode.get("query").asText();
+                    try {
+                        // Check if the query value is itself JSON
+                        JsonNode queryNode = objectMapper.readTree(queryValue);
+                        if (queryNode.has("query")) {
+                            // We have a nested query object
+                            graphqlQuery = queryNode.get("query").asText();
+                        } else {
+                            // Not a nested object, use the query value directly
+                            graphqlQuery = queryValue;
+                        }
+                    } catch (Exception e) {
+                        // The query value is not valid JSON, use it as-is
+                        graphqlQuery = queryValue;
+                    }
                     logger.info("Parsed GraphQL query from JSON: {}", graphqlQuery);
                 } else {
                     // If not in standard format, use the raw body
@@ -47,8 +60,19 @@ public class RoleController {
                 logger.info("Using raw GraphQL query: {}", graphqlQuery);
             }
             
-            // Trim the query to remove any extra whitespace
+            // Remove any enclosing quotes and escape sequences that might be present
             graphqlQuery = graphqlQuery.trim();
+            if (graphqlQuery.startsWith("\"") && graphqlQuery.endsWith("\"")) {
+                graphqlQuery = graphqlQuery.substring(1, graphqlQuery.length() - 1);
+            }
+            graphqlQuery = graphqlQuery.replace("\\n", "\n").replace("\\\"", "\"").replace("\\\\", "\\");
+            
+            // After cleaning the graphqlQuery string
+            graphqlQuery = graphqlQuery.trim();
+            if (!graphqlQuery.toLowerCase().startsWith("query")) {
+                graphqlQuery = "query " + graphqlQuery;
+            }
+            logger.info("Final GraphQL query after processing: {}", graphqlQuery);
             
             // Check for different operation types
             if (graphqlQuery.contains("getAllRoles")) {

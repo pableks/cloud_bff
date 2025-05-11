@@ -93,7 +93,7 @@ public class RoleServiceImpl implements RoleService {
         try {
             // Create proper GraphQL request object
             Map<String, String> graphqlRequest = new HashMap<>();
-            graphqlRequest.put("query", "{ role(id: " + id + ") { id title description } }");
+            graphqlRequest.put("query", "{ getRoleById(id: " + id + ") { id title description } }");
 
             String graphqlResponse = webClient.post()
                     .uri("/graphql")
@@ -107,7 +107,7 @@ public class RoleServiceImpl implements RoleService {
             // Parse the GraphQL response
             try {
                 JsonNode rootNode = objectMapper.readTree(graphqlResponse);
-                JsonNode roleNode = rootNode.path("data").path("role");
+                JsonNode roleNode = rootNode.path("data").path("getRoleById");
                 
                 if (!roleNode.isMissingNode()) {
                     RoleModel role = new RoleModel();
@@ -148,40 +148,46 @@ public class RoleServiceImpl implements RoleService {
         ResponseModel responseModel = new ResponseModel();
 
         try {
-            // Raw GraphQL mutation without JSON wrapper
-            String mutation = "mutation { createRole(input: {title: \"" + role.getTitle() + 
-                              "\", description: \"" + role.getDescription() + 
-                              "\"}) { id title description } }";
+            // Align with Azure Function's RoleMutationResolver: direct arguments
+            String mutation = String.format(
+                "mutation { createRole(title: \"%s\", description: \"%s\") }",
+                role.getTitle(), 
+                role.getDescription()
+            );
+            
+            Map<String, String> graphqlRequest = new HashMap<>();
+            graphqlRequest.put("query", mutation);
 
             String graphqlResponse = webClient.post()
                     .uri("/graphql")
                     .header("x-functions-key", authCode)
                     .contentType(MediaType.APPLICATION_JSON)
-                    .bodyValue(mutation)
+                    .bodyValue(objectMapper.writeValueAsString(graphqlRequest))
                     .retrieve()
                     .bodyToMono(String.class)
                     .block();
             
-            // Parse the GraphQL response
+            // Parse the GraphQL response, expecting a boolean
             try {
                 JsonNode rootNode = objectMapper.readTree(graphqlResponse);
-                JsonNode createdRoleNode = rootNode.path("data").path("createRole");
+                JsonNode createRoleNode = rootNode.path("data").path("createRole");
                 
-                if (!createdRoleNode.isMissingNode()) {
-                    RoleModel createdRole = new RoleModel();
-                    createdRole.setId(Long.parseLong(createdRoleNode.path("id").asText()));
-                    createdRole.setTitle(createdRoleNode.path("title").asText());
-                    createdRole.setDescription(createdRoleNode.path("description").asText());
-                    
-                    responseModel.setData(createdRole);
+                if (!createRoleNode.isMissingNode() && createRoleNode.isBoolean() && createRoleNode.asBoolean()) {
+                    responseModel.setData(true); // Or role, or null as per preference
                     responseModel.setMessage("Role created successfully");
                     responseModel.setStatus(201);
                     responseModel.setError(null);
                 } else {
-                    responseModel.setData(graphqlResponse);
+                    String errorMessage = "Unable to create role.";
+                    if (rootNode.has("errors")) {
+                        errorMessage = rootNode.get("errors").toString();
+                    } else if (!createRoleNode.isMissingNode() && createRoleNode.isBoolean() && !createRoleNode.asBoolean()) {
+                        errorMessage = "Create role operation returned false.";
+                    }
+                    responseModel.setData(graphqlResponse); // Or false
                     responseModel.setMessage("Error creating role");
                     responseModel.setStatus(500);
-                    responseModel.setError("Unable to create role");
+                    responseModel.setError(errorMessage);
                 }
             } catch (JsonProcessingException e) {
                 responseModel.setData(graphqlResponse);
@@ -206,41 +212,47 @@ public class RoleServiceImpl implements RoleService {
         ResponseModel responseModel = new ResponseModel();
 
         try {
-            // Raw GraphQL mutation without JSON wrapper - fixed format based on API requirements
-            String mutation = "mutation { updateRole(input: {id: \"" + role.getId() + 
-                              "\", title: \"" + role.getTitle() + 
-                              "\", description: \"" + role.getDescription() + 
-                              "\"}) { id title description } }";
+            // Align with Azure Function's RoleMutationResolver: direct arguments
+            String mutation = String.format(
+                "mutation { updateRole(id: \"%s\", title: \"%s\", description: \"%s\") }",
+                role.getId(), 
+                role.getTitle(), 
+                role.getDescription()
+            );
+
+            Map<String, String> graphqlRequest = new HashMap<>();
+            graphqlRequest.put("query", mutation);
 
             String graphqlResponse = webClient.post()
                     .uri("/graphql")
                     .header("x-functions-key", authCode)
                     .contentType(MediaType.APPLICATION_JSON)
-                    .bodyValue(mutation)
+                    .bodyValue(objectMapper.writeValueAsString(graphqlRequest))
                     .retrieve()
                     .bodyToMono(String.class)
                     .block();
             
-            // Parse the GraphQL response
+            // Parse the GraphQL response, expecting a boolean
             try {
                 JsonNode rootNode = objectMapper.readTree(graphqlResponse);
-                JsonNode updatedRoleNode = rootNode.path("data").path("updateRole");
+                JsonNode updateRoleNode = rootNode.path("data").path("updateRole");
                 
-                if (!updatedRoleNode.isMissingNode()) {
-                    RoleModel updatedRole = new RoleModel();
-                    updatedRole.setId(Long.parseLong(updatedRoleNode.path("id").asText()));
-                    updatedRole.setTitle(updatedRoleNode.path("title").asText());
-                    updatedRole.setDescription(updatedRoleNode.path("description").asText());
-                    
-                    responseModel.setData(updatedRole);
+                if (!updateRoleNode.isMissingNode() && updateRoleNode.isBoolean() && updateRoleNode.asBoolean()) {
+                    responseModel.setData(true); // Or role, or null
                     responseModel.setMessage("Role updated successfully");
                     responseModel.setStatus(200);
                     responseModel.setError(null);
                 } else {
-                    responseModel.setData(graphqlResponse);
+                    String errorMessage = "Unable to update role.";
+                     if (rootNode.has("errors")) {
+                        errorMessage = rootNode.get("errors").toString();
+                    } else if (!updateRoleNode.isMissingNode() && updateRoleNode.isBoolean() && !updateRoleNode.asBoolean()) {
+                        errorMessage = "Update role operation returned false.";
+                    }
+                    responseModel.setData(graphqlResponse); // Or false
                     responseModel.setMessage("Error updating role");
-                    responseModel.setStatus(500);
-                    responseModel.setError("Unable to update role");
+                    responseModel.setStatus(500); // Or 404 if ID not found, based on API behavior
+                    responseModel.setError(errorMessage);
                 }
             } catch (JsonProcessingException e) {
                 responseModel.setData(graphqlResponse);
@@ -265,38 +277,46 @@ public class RoleServiceImpl implements RoleService {
         ResponseModel responseModel = new ResponseModel();
 
         try {
-            // Raw GraphQL mutation with the correct fields for DeleteResponse
-            String mutation = "mutation { deleteRole(id: \"" + id + "\") { success message } }";
+            // Align with Azure Function's RoleMutationResolver: direct argument
+            String mutation = String.format("mutation { deleteRole(id: \"%s\") }", id);
+
+            Map<String, String> graphqlRequest = new HashMap<>();
+            graphqlRequest.put("query", mutation);
 
             String graphqlResponse = webClient.post()
                     .uri("/graphql")
                     .header("x-functions-key", authCode)
                     .contentType(MediaType.APPLICATION_JSON)
-                    .bodyValue(mutation)
+                    .bodyValue(objectMapper.writeValueAsString(graphqlRequest))
                     .retrieve()
                     .bodyToMono(String.class)
                     .block();
             
-            // Parse the GraphQL response
+            // Parse the GraphQL response, expecting a boolean
             try {
                 JsonNode rootNode = objectMapper.readTree(graphqlResponse);
-                JsonNode deleteResponseNode = rootNode.path("data").path("deleteRole");
+                JsonNode deleteRoleNode = rootNode.path("data").path("deleteRole");
                 
-                if (!deleteResponseNode.isMissingNode() && deleteResponseNode.path("success").asBoolean()) {
-                    Map<String, Object> deleteResponse = new HashMap<>();
-                    deleteResponse.put("success", deleteResponseNode.path("success").asBoolean());
-                    deleteResponse.put("message", deleteResponseNode.path("message").asText());
-                    deleteResponse.put("id", id);
-                    
-                    responseModel.setData(deleteResponse);
+                if (!deleteRoleNode.isMissingNode() && deleteRoleNode.isBoolean() && deleteRoleNode.asBoolean()) {
+                    Map<String, Object> deleteSuccessResponse = new HashMap<>();
+                    deleteSuccessResponse.put("success", true);
+                    deleteSuccessResponse.put("message", "Role deleted successfully");
+                    deleteSuccessResponse.put("id", id);
+                    responseModel.setData(deleteSuccessResponse); // Or just true
                     responseModel.setMessage("Role deleted successfully");
                     responseModel.setStatus(200);
                     responseModel.setError(null);
                 } else {
-                    responseModel.setData(graphqlResponse);
+                    String errorMessage = "Unable to delete role.";
+                    if (rootNode.has("errors")) {
+                        errorMessage = rootNode.get("errors").toString();
+                    } else if (!deleteRoleNode.isMissingNode() && deleteRoleNode.isBoolean() && !deleteRoleNode.asBoolean()) {
+                        errorMessage = "Delete role operation returned false.";
+                    }
+                    responseModel.setData(graphqlResponse); // Or false
                     responseModel.setMessage("Error deleting role");
-                    responseModel.setStatus(500);
-                    responseModel.setError("Unable to delete role");
+                    responseModel.setStatus(500); // Or 404 if ID not found
+                    responseModel.setError(errorMessage);
                 }
             } catch (JsonProcessingException e) {
                 responseModel.setData(graphqlResponse);
