@@ -239,4 +239,66 @@ public class UserServiceImpl implements UserService {
             return responseModel;
         }
     }
+
+    @Override
+    public ResponseModel getUserById(Long id) {
+        ResponseModel responseModel = new ResponseModel();
+
+        try {
+            logger.info("Fetching user with ID: {}", id);
+            
+            // Get user by ID from the Azure Function
+            String response = webClient.get()
+                    .uri(uriBuilder -> uriBuilder
+                            .path("/userRest")
+                            .queryParam("id", id)
+                            .build())
+                    .header("x-functions-key", authCode)
+                    .retrieve()
+                    .bodyToMono(String.class)
+                    .block();
+            
+            // Check if the response is valid
+            if (response == null || response.isEmpty() || response.equals("null")) {
+                responseModel.setMessage("User not found");
+                responseModel.setStatus(404);
+                responseModel.setError("No user exists with ID: " + id);
+                return responseModel;
+            }
+            
+            // Parse the response to extract user data
+            try {
+                com.fasterxml.jackson.databind.JsonNode userNode = objectMapper.readTree(response);
+                UserModel user = new UserModel();
+                user.setId(userNode.has("id") ? userNode.get("id").asLong() : null);
+                user.setEmail(userNode.has("email") ? userNode.get("email").asText() : null);
+                user.setPassword(userNode.has("password") ? userNode.get("password").asText() : null);
+                
+                // Set roleId directly to rol without any conversion
+                if (userNode.has("roleId") && !userNode.get("roleId").isNull()) {
+                    user.setRol(userNode.get("roleId").asText());
+                }
+                
+                responseModel.setData(user);
+                responseModel.setMessage("User retrieved successfully");
+                responseModel.setStatus(200);
+                responseModel.setError(null);
+            } catch (Exception e) {
+                logger.error("Error parsing user data: {}", e.getMessage(), e);
+                responseModel.setMessage("Error parsing user data");
+                responseModel.setStatus(500);
+                responseModel.setError(e.getMessage());
+            }
+
+            return responseModel;
+
+        } catch (Exception e) {
+            logger.error("Error getting user by ID: {}", e.getMessage(), e);
+            responseModel.setMessage(e.getLocalizedMessage());
+            responseModel.setStatus(500);
+            responseModel.setError(e.getMessage());
+
+            return responseModel;
+        }
+    }
 }

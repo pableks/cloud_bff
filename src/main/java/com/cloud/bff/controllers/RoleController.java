@@ -12,7 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @RestController
-@RequestMapping("/api/graphql")
+@RequestMapping("/api-deprecated/graphql")
 public class RoleController {
 
     private final RoleService roleService;

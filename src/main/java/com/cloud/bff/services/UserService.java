@@ -6,6 +6,8 @@ import com.cloud.bff.models.UserModel;
 public interface UserService {
 
     public ResponseModel getUsers();
+    
+    public ResponseModel getUserById(Long id);
 
     public ResponseModel addUser(UserModel user);
 
