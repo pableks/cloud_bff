@@ -1,10 +1,15 @@
-C:\proyectos\duoc\cloud 2\git\cloud_bff\src\main\java\com\cloud\bff\BffCloudApplication.java
-C:\proyectos\duoc\cloud 2\git\cloud_bff\src\main\java\com\cloud\bff\controllers\RoleController.java
-C:\proyectos\duoc\cloud 2\git\cloud_bff\src\main\java\com\cloud\bff\controllers\UserController.java
-C:\proyectos\duoc\cloud 2\git\cloud_bff\src\main\java\com\cloud\bff\models\ResponseModel.java
-C:\proyectos\duoc\cloud 2\git\cloud_bff\src\main\java\com\cloud\bff\models\RoleModel.java
-C:\proyectos\duoc\cloud 2\git\cloud_bff\src\main\java\com\cloud\bff\models\UserModel.java
-C:\proyectos\duoc\cloud 2\git\cloud_bff\src\main\java\com\cloud\bff\services\RoleService.java
-C:\proyectos\duoc\cloud 2\git\cloud_bff\src\main\java\com\cloud\bff\services\serviceImpl\RoleServiceImpl.java
-C:\proyectos\duoc\cloud 2\git\cloud_bff\src\main\java\com\cloud\bff\services\serviceImpl\UserServiceImpl.java
-C:\proyectos\duoc\cloud 2\git\cloud_bff\src\main\java\com\cloud\bff\services\UserService.java
+/Users/pablojavier/Documents/Study/EFT_Cloud2/Sumativa2/entrega_s_5_cloud_2/cloud_bff/src/main/java/com/cloud/bff/BffCloudApplication.java
+/Users/pablojavier/Documents/Study/EFT_Cloud2/Sumativa2/entrega_s_5_cloud_2/cloud_bff/src/main/java/com/cloud/bff/config/WebConfig.java
+/Users/pablojavier/Documents/Study/EFT_Cloud2/Sumativa2/entrega_s_5_cloud_2/cloud_bff/src/main/java/com/cloud/bff/controllers/GraphQLController.java
+/Users/pablojavier/Documents/Study/EFT_Cloud2/Sumativa2/entrega_s_5_cloud_2/cloud_bff/src/main/java/com/cloud/bff/controllers/RestApiController.java
+/Users/pablojavier/Documents/Study/EFT_Cloud2/Sumativa2/entrega_s_5_cloud_2/cloud_bff/src/main/java/com/cloud/bff/controllers/RoleController.java
+/Users/pablojavier/Documents/Study/EFT_Cloud2/Sumativa2/entrega_s_5_cloud_2/cloud_bff/src/main/java/com/cloud/bff/controllers/RoleRestController.java
+/Users/pablojavier/Documents/Study/EFT_Cloud2/Sumativa2/entrega_s_5_cloud_2/cloud_bff/src/main/java/com/cloud/bff/controllers/UserController.java
+/Users/pablojavier/Documents/Study/EFT_Cloud2/Sumativa2/entrega_s_5_cloud_2/cloud_bff/src/main/java/com/cloud/bff/controllers/UserGraphQLController.java
+/Users/pablojavier/Documents/Study/EFT_Cloud2/Sumativa2/entrega_s_5_cloud_2/cloud_bff/src/main/java/com/cloud/bff/models/ResponseModel.java
+/Users/pablojavier/Documents/Study/EFT_Cloud2/Sumativa2/entrega_s_5_cloud_2/cloud_bff/src/main/java/com/cloud/bff/models/RoleModel.java
+/Users/pablojavier/Documents/Study/EFT_Cloud2/Sumativa2/entrega_s_5_cloud_2/cloud_bff/src/main/java/com/cloud/bff/models/UserModel.java
+/Users/pablojavier/Documents/Study/EFT_Cloud2/Sumativa2/entrega_s_5_cloud_2/cloud_bff/src/main/java/com/cloud/bff/services/RoleService.java
+/Users/pablojavier/Documents/Study/EFT_Cloud2/Sumativa2/entrega_s_5_cloud_2/cloud_bff/src/main/java/com/cloud/bff/services/UserService.java
+/Users/pablojavier/Documents/Study/EFT_Cloud2/Sumativa2/entrega_s_5_cloud_2/cloud_bff/src/main/java/com/cloud/bff/services/serviceImpl/RoleServiceImpl.java
+/Users/pablojavier/Documents/Study/EFT_Cloud2/Sumativa2/entrega_s_5_cloud_2/cloud_bff/src/main/java/com/cloud/bff/services/serviceImpl/UserServiceImpl.java

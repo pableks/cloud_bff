@@ -10,5 +10,5 @@ COPY target/*.jar app.jar
 # Exponemos el puerto en el que corre Spring Boot
 EXPOSE 8080
 
-# Comando para ejecutar la aplicación
+# Comando para ejecutar la aplicación con CORS enabled
 ENTRYPOINT ["java", "-jar", "app.jar"]
